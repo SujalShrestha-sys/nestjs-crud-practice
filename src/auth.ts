@@ -1,0 +1,35 @@
+import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { betterAuth } from 'better-auth';
+import { PrismaService } from './lib/database/prisma.service';
+
+process.loadEnvFile();
+
+const baseURL = process.env.BETTER_AUTH_URL;
+
+if (!baseURL) {
+  throw new Error('BETTER_AUTH_URL must be set');
+}
+
+export const createAuth = (prisma: PrismaService) =>
+  betterAuth({
+    baseURL,
+    trustedOrigins: [baseURL],
+    database: prismaAdapter(prisma, {
+      provider: 'postgresql',
+    }),
+    emailAndPassword: {
+      enabled: true,
+    },
+    user: {
+      additionalFields: {
+        role: {
+          type: ['PARTICIPANT', 'ADMIN'],
+          required: false,
+          defaultValue: 'PARTICIPANT',
+          input: false,
+        },
+      },
+    },
+  });
+
+export type Auth = ReturnType<typeof createAuth>;
