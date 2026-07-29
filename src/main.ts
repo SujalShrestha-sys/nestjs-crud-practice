@@ -1,12 +1,16 @@
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bodyParser: false,
   });
+  // Render terminates requests at a reverse proxy. Trust its single proxy hop
+  // so Express exposes the client address as req.ip for Arcjet's IP-based rules.
+  app.set('trust proxy', 1);
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

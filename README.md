@@ -263,6 +263,8 @@ It currently uses:
 
 Arcjet is useful because security and abuse protection should be handled before a request reaches expensive database work.
 
+When deployed behind Render, `main.ts` trusts one reverse-proxy hop with `app.set('trust proxy', 1)`. This lets Express expose the visitor IP through `req.ip`, allowing Arcjet's IP-based rate limit to create a separate fingerprint for each visitor instead of seeing only the hosting proxy.
+
 ## Database design
 
 The Prisma schema contains two important Hackathon models.
