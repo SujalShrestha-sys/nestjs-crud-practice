@@ -494,18 +494,129 @@ pnpm build
 
 `--frozen-lockfile` makes pnpm use the exact dependency versions already recorded in `pnpm-lock.yaml`. It fails instead of silently changing the lockfile, so your computer and CI install the same dependency tree.
 
-### GitHub Actions CI
+### CI/CD workflow: from code push to live API
 
-The workflow in `.github/workflows/ci.yml` runs automatically for every push to `main` and every pull request targeting `main`. It installs dependencies, generates Prisma Client, checks linting, runs tests, builds NestJS, and builds the Docker image without publishing it. You can view each run in the repository's **Actions** tab on GitHub.
+This project uses GitHub Actions, Docker Hub, Render, and Neon together. The workflow is designed to prevent an unverified change from becoming a deployable Docker image.
 
-For pushes to `main`, the workflow has a second job that runs only after validation succeeds and publishes the Docker image to Docker Hub. Before the first publish, create a Docker Hub repository named `nestjs-crud-practice`, then add these GitHub repository secrets:
+```text
+Developer changes code
+        |
+        v
+Push or pull request on GitHub
+        |
+        v
+GitHub Actions validates the application
+        |
+        +-- failed -> workflow stops; no image is published
+        |
+        v
+Push to main only: publish versioned image to Docker Hub
+        |
+        v
+Render deploys the latest approved image
+        |
+        v
+Container applies Prisma migrations to Neon
+        |
+        v
+NestJS starts and Render health check confirms the API is live
+```
+
+The workflow configuration lives in [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+
+#### Step 1: a developer pushes code
+
+For example, after finishing a feature or fix:
+
+```bash
+git add .
+git commit -m "Describe the change"
+git push origin main
+```
+
+GitHub Actions starts automatically for every push to `main` and for every pull request targeting `main`. You can view each run in the repository's **Actions** tab.
+
+#### Step 2: Continuous Integration validates the change
+
+The `validate` job runs these checks in order:
+
+| Check | Command | Why it matters |
+| --- | --- | --- |
+| Install exact dependencies | `pnpm install --frozen-lockfile` | Makes local and CI dependency versions consistent. |
+| Generate Prisma Client | `pnpm prisma:generate` | Ensures database types match the Prisma schema. |
+| Check code quality | `pnpm lint:check` | Finds linting and unsafe TypeScript issues without changing files. |
+| Run tests | `pnpm test` | Runs automated tests when they exist. |
+| Compile NestJS | `pnpm build` | Catches TypeScript and build errors. |
+| Build Docker image | `docker build` | Proves the application can be packaged for deployment. |
+
+If any check fails, the workflow stops. Docker Hub receives no new image, so Render cannot deploy that broken version.
+
+#### Step 3: Continuous Delivery publishes the image
+
+The `publish` job runs only when all validation checks pass **and** the event is a push to `main`. Pull requests are validated, but they never publish an image.
+
+GitHub Actions logs in to Docker Hub with repository secrets, builds the production image, and pushes it to:
+
+```text
+docker.io/sujalstha/nestjs-crud-practice
+```
+
+Before the first publish, create a Docker Hub repository named `nestjs-crud-practice`, then add these GitHub repository secrets:
 
 | Secret | Value |
 | --- | --- |
 | `DOCKERHUB_USERNAME` | Your Docker Hub username. |
 | `DOCKERHUB_TOKEN` | A Docker Hub personal access token with permission to push images. |
 
-The published image tags are `latest` and `sha-<short-commit-sha>`. Pull requests never reach the publish job.
+Each successful publish creates two image tags:
+
+| Tag | Purpose |
+| --- | --- |
+| `latest` | The most recently approved image. Render uses this tag for the learning deployment. |
+| `sha-<short-commit-sha>` | An immutable reference to the exact Git commit that created the image. Useful for debugging and rollback. |
+
+For example, a commit with short SHA `25b8467` produces:
+
+```text
+sujalstha/nestjs-crud-practice:latest
+sujalstha/nestjs-crud-practice:sha-25b8467
+```
+
+#### Step 4: Render runs the container
+
+Render pulls the `latest` image from Docker Hub when you select **Manual Deploy** then **Deploy latest image**. This project currently uses this manual final deployment step so you can inspect the published image before it becomes live.
+
+The container starts with `docker/start-production.sh`:
+
+```text
+prisma migrate deploy
+        |
+        v
+node dist/src/main
+```
+
+`prisma migrate deploy` applies only the migration files already committed to `prisma/migrations`. This prepares a fresh Neon database before NestJS begins serving requests. Render then calls the `/` health-check endpoint; a successful response marks the service as live.
+
+#### Step 5: secrets stay outside Git and Docker
+
+Render injects runtime configuration through protected environment variables:
+
+| Variable | Purpose |
+| --- | --- |
+| `DATABASE_URL` | Connection to the Neon PostgreSQL database. |
+| `BETTER_AUTH_URL` and `BETTER_AUTH_SECRET` | Better Auth public URL and session security. |
+| `ARCJET_KEY` | Arcjet request protection. |
+| `PORT` | The port Render exposes, `3000` for this API. |
+
+These values are not committed to Git, included in the Docker image, or stored in GitHub Actions logs.
+
+#### What CI and CD mean here
+
+| Term | Meaning in this project |
+| --- | --- |
+| Continuous Integration (CI) | Automatically validates every proposed code change through install, Prisma generation, linting, tests, build, and Docker build steps. |
+| Continuous Delivery (CD) | Automatically creates and publishes a deployable Docker image after CI succeeds on `main`. |
+| Deployment | The final action that makes the image live. It is currently triggered manually in Render after you review the successful GitHub Actions run. |
 
 After the first successful publish, pull the image with:
 
