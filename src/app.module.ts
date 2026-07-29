@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { ArcjetGuard, ArcjetModule, shield, slidingWindow } from '@arcjet/nest';
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
@@ -11,7 +12,9 @@ import { PrismaService } from './lib/database/prisma.service';
 import { UserModule } from './module/user/user.module';
 import { HackathonModule } from './module/hackathon/hackathon.module';
 
-process.loadEnvFile();
+if (existsSync('.env')) {
+  process.loadEnvFile();
+}
 
 const arcjetKey = process.env.ARCJET_KEY;
 

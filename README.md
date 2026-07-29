@@ -424,6 +424,45 @@ pnpm start:dev
 
 The API starts at `http://localhost:3000` unless `PORT` is set.
 
+### Run with Docker Compose
+
+Docker Compose keeps the Docker commands short. Docker Desktop must be running, and the project root must contain your local `.env` file.
+
+Compose starts both the NestJS API and a local PostgreSQL database. The API uses `postgres` as the database hostname inside Docker, not `localhost`. The Compose database URL overrides the `DATABASE_URL` in `.env`, so your Docker practice environment does not use your external database. Copy `.env.example` when you need a safe starting point for local Docker values.
+
+Before the API starts, Compose runs a one-off `migrate` service. It uses `prisma migrate deploy` to apply the committed migration files to the local Docker database, then exits successfully. The API waits for that success before it starts. This means a fresh Docker database receives the `Hackathon` and `HackathonParticipant` tables automatically.
+
+If you previously started the API with a plain `docker run` command, release port `3000` once before switching to Compose:
+
+```bash
+docker stop nestjs-crud-practice
+docker rm nestjs-crud-practice
+```
+
+Start the Docker version of the API:
+
+```bash
+pnpm docker:up
+```
+
+Open `http://localhost:3000` in your browser or API client.
+
+| pnpm command | Runs | Purpose |
+| --- | --- |
+| `pnpm docker:up` | `docker compose up -d` | Start the API and PostgreSQL in the background. |
+| `pnpm docker:up:build` | `docker compose up -d --build` | Rebuild after code or Dockerfile changes, then start the services. |
+| `pnpm docker:down` | `docker compose down` | Stop and remove the Compose containers and network. The Docker image and database volume remain. |
+| `pnpm docker:status` | `docker compose ps` | Show the API and database container status. |
+| `pnpm docker:logs` | `docker compose logs -f api` | View live API logs. Press `Ctrl + C` to stop viewing logs. |
+| `pnpm docker:migrate` | `docker compose run --rm migrate` | Run the committed Prisma migrations manually when needed. |
+| `pnpm docker:db:reset` | `docker compose down -v` | Permanently delete the local PostgreSQL data volume. Use only when you want a fresh database. |
+
+Do not run `pnpm start:dev` and `docker compose up -d` at the same time because both use port `3000`.
+
+### Docker build safety
+
+`.gitignore` controls which files Git does not track. `.dockerignore` controls which files Docker does not send to its build engine. Both files ignore `.env`, but they solve different problems: Git prevents accidentally committing secrets, while Docker prevents secrets and unnecessary local files from entering a build context or image.
+
 ## Useful commands
 
 | Command | Purpose |
@@ -431,10 +470,44 @@ The API starts at `http://localhost:3000` unless `PORT` is set.
 | `pnpm start:dev` | Start NestJS in watch mode. |
 | `pnpm build` | Compile the project and catch TypeScript errors. |
 | `pnpm lint` | Check and fix linting issues. |
-| `pnpm test` | Run unit tests. |
+| `pnpm lint:check` | Check linting without modifying files. This is the CI command. |
+| `pnpm test` | Run unit tests. It currently passes when no tests exist, so add tests as the project grows. |
 | `pnpm prisma:generate` | Regenerate Prisma Client after a schema change. |
 | `pnpm prisma:migrate` | Create and apply a development migration. |
 | `pnpm prisma:deploy` | Apply existing migrations in a deployment environment. |
+
+### CI verification commands
+
+Run this read-only sequence before pushing changes or when you want to reproduce the future GitHub Actions checks locally:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm prisma:generate
+pnpm lint:check
+pnpm test
+pnpm build
+```
+
+`--frozen-lockfile` makes pnpm use the exact dependency versions already recorded in `pnpm-lock.yaml`. It fails instead of silently changing the lockfile, so your computer and CI install the same dependency tree.
+
+### GitHub Actions CI
+
+The workflow in `.github/workflows/ci.yml` runs automatically for every push to `main` and every pull request targeting `main`. It installs dependencies, generates Prisma Client, checks linting, runs tests, builds NestJS, and builds the Docker image without publishing it. You can view each run in the repository's **Actions** tab on GitHub.
+
+For pushes to `main`, the workflow has a second job that runs only after validation succeeds and publishes the Docker image to Docker Hub. Before the first publish, create a Docker Hub repository named `nestjs-crud-practice`, then add these GitHub repository secrets:
+
+| Secret | Value |
+| --- | --- |
+| `DOCKERHUB_USERNAME` | Your Docker Hub username. |
+| `DOCKERHUB_TOKEN` | A Docker Hub personal access token with permission to push images. |
+
+The published image tags are `latest` and `sha-<short-commit-sha>`. Pull requests never reach the publish job.
+
+After the first successful publish, pull the image with:
+
+```bash
+docker pull <dockerhub-username>/nestjs-crud-practice:latest
+```
 
 ## Key learning points
 

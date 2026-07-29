@@ -1,8 +1,11 @@
+import { existsSync } from 'node:fs';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { betterAuth } from 'better-auth';
 import { PrismaService } from './lib/database/prisma.service';
 
-process.loadEnvFile();
+if (existsSync('.env')) {
+  process.loadEnvFile();
+}
 
 const baseURL = process.env.BETTER_AUTH_URL;
 
