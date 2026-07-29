@@ -252,6 +252,8 @@ The NestJS integration provides these useful decorators and guards:
 
 Authentication answers, “Who is this user?” Authorization answers, “Is this user allowed to do this action?” This project uses both.
 
+In Render, Better Auth reads the `x-forwarded-for` header supplied by the platform to identify the visitor for authentication rate limits. Without this configuration, every proxied request can fall into one shared rate-limit bucket.
+
 ## Arcjet protection
 
 Arcjet is configured globally in `AppModule`.

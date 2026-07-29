@@ -17,6 +17,14 @@ export const createAuth = (prisma: PrismaService) =>
   betterAuth({
     baseURL,
     trustedOrigins: [baseURL],
+    // Render provides the visitor address through this forwarded header.
+    // Better Auth uses it to apply its rate limits per client instead of
+    // placing every request in one shared proxy bucket.
+    advanced: {
+      ipAddress: {
+        ipAddressHeaders: ['x-forwarded-for'],
+      },
+    },
     database: prismaAdapter(prisma, {
       provider: 'postgresql',
     }),
