@@ -366,9 +366,9 @@ docker run --rm -p 3000:3000 <dockerhub-username>/nestjs-crud-practice:latest
 
 ### Done when
 
-- [ ] A successful push to `main` publishes an image to Docker Hub.
-- [ ] The `latest` image can be pulled and run locally.
-- [ ] A commit specific image tag exists for traceability.
+- [x] A successful push to `main` publishes an image to Docker Hub.
+- [x] The `latest` image can be pulled and run locally.
+- [x] A commit specific image tag exists for traceability.
 - [x] A pull request cannot publish an image.
 
 ## Phase 8, Choose deployment and add continuous deployment

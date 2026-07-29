@@ -506,7 +506,7 @@ The published image tags are `latest` and `sha-<short-commit-sha>`. Pull request
 After the first successful publish, pull the image with:
 
 ```bash
-docker pull <dockerhub-username>/nestjs-crud-practice:latest
+docker pull sujalstha/nestjs-crud-practice:latest
 ```
 
 ## Key learning points
