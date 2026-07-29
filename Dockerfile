@@ -41,8 +41,11 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 RUN pnpm install --prod --frozen-lockfile
 
-# Stage 6: run the compiled API as the non root Node.js user
-FROM node:22-bookworm-slim AS production
+# Stage 6: apply committed migrations, then run the compiled API as non-root.
+# Prisma CLI is a production dependency because this image applies migrations at
+# startup. This makes a newly created managed database ready before the API
+# accepts requests.
+FROM base AS production
 
 ENV NODE_ENV="production"
 
@@ -50,9 +53,14 @@ WORKDIR /app
 
 COPY --from=production-dependencies --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/dist ./dist
+COPY --chown=node:node prisma ./prisma
+COPY --chown=node:node prisma.config.ts ./prisma.config.ts
+COPY --chown=node:node docker/start-production.sh ./docker/start-production.sh
+
+RUN chmod +x ./docker/start-production.sh
 
 USER node
 
 EXPOSE 3000
 
-CMD ["node", "dist/src/main"]
+CMD ["./docker/start-production.sh"]

@@ -509,6 +509,66 @@ After the first successful publish, pull the image with:
 docker pull sujalstha/nestjs-crud-practice:latest
 ```
 
+## Deploying the Docker image with Render and Neon
+
+This project can be deployed without Railway by using Render for the NestJS API and Neon for PostgreSQL:
+
+```text
+GitHub Actions -> Docker Hub -> Render Web Service -> Neon PostgreSQL
+```
+
+Render pulls the published Docker Hub image, while Neon keeps the database separate from the application container. This is important because a container's local filesystem is temporary.
+
+### 1. Create a Neon PostgreSQL database
+
+1. Create a free project at [Neon](https://neon.com/).
+2. Create a database, then copy its pooled PostgreSQL connection string.
+3. Keep it private. It becomes the `DATABASE_URL` environment variable in Render.
+
+### 2. Create a Render Web Service
+
+1. In [Render](https://dashboard.render.com/), choose **New** then **Web Service**.
+2. Choose **Deploy an existing image from a registry**.
+3. Use this public Docker image:
+
+   ```text
+   docker.io/sujalstha/nestjs-crud-practice:latest
+   ```
+
+4. Set the service port to `3000`.
+5. Set the health-check path to `/`.
+6. Add the environment variables below in Render's **Environment** tab. Do not add them to GitHub or commit them to `.env`.
+
+| Variable | Value |
+| --- | --- |
+| `DATABASE_URL` | Neon pooled PostgreSQL connection string |
+| `BETTER_AUTH_URL` | Your final `https://...onrender.com` service URL |
+| `BETTER_AUTH_SECRET` | A new long, random production secret |
+| `ARCJET_KEY` | Your Arcjet production key |
+| `ARCJET_MODE` | `DRY_RUN` while learning, then `LIVE` when ready to enforce rules |
+| `ARCJET_ENV` | `production` |
+| `PORT` | `3000` |
+
+The production image runs `prisma migrate deploy` before NestJS starts. It applies only migration files already committed to `prisma/migrations`, so a fresh Neon database receives the required tables automatically.
+
+### 3. Verify the deployment
+
+After Render reports that the deploy is live, open the Render service URL in a browser. The root endpoint should return the application's success response. Then open the Render log stream and confirm these messages appear:
+
+```text
+Applying Prisma migrations...
+Starting the NestJS API...
+Nest application successfully started
+```
+
+### Free-tier expectations
+
+Render is suitable for this practice project. Its free Web Service can spin down after inactivity, so the next request may take about a minute to wake it up. The application data remains safe in Neon because it is stored in PostgreSQL rather than in the container.
+
+### Updating the deployed image
+
+Every successful push to `main` publishes both `latest` and a traceable `sha-<commit>` image tag to Docker Hub. In Render, select **Manual Deploy** and choose **Deploy latest image** after a new publish. For reproducible releases, change the Render image to a specific `sha-<commit>` tag instead of `latest`.
+
 ## Key learning points
 
 1. Keep controllers thin. They translate HTTP requests into service calls.
