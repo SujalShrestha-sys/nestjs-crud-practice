@@ -451,8 +451,10 @@ pnpm docker:up
 
 Open `http://localhost:3000` in your browser or API client.
 
+#### Docker Compose commands
+
 | pnpm command | Runs | Purpose |
-| --- | --- |
+| --- | --- | --- |
 | `pnpm docker:up` | `docker compose up -d` | Start the API and PostgreSQL in the background. |
 | `pnpm docker:up:build` | `docker compose up -d --build` | Rebuild after code or Dockerfile changes, then start the services. |
 | `pnpm docker:down` | `docker compose down` | Stop and remove the Compose containers and network. The Docker image and database volume remain. |
