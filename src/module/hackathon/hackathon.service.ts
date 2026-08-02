@@ -6,7 +6,10 @@ import {
 import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../lib/database/prisma.service';
 import { CreateHackathonDto } from './dto/create-hackathon.dto';
-import { HackathonStatusFilter, QueryHackathonDto } from './dto/query-hackathon.dto';
+import {
+  HackathonStatusFilter,
+  QueryHackathonDto,
+} from './dto/query-hackathon.dto';
 import { UpdateHackathonDto } from './dto/update-hackathon.dto';
 
 @Injectable()

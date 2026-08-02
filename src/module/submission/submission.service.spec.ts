@@ -5,7 +5,6 @@ import { SubmissionService } from './submission.service';
 
 describe('SubmissionService', () => {
   let service: SubmissionService;
-  let prisma: PrismaService;
 
   const mockPrismaService = {
     hackathon: {
@@ -34,7 +33,6 @@ describe('SubmissionService', () => {
     }).compile();
 
     service = module.get<SubmissionService>(SubmissionService);
-    prisma = module.get<PrismaService>(PrismaService);
     jest.clearAllMocks();
   });
 

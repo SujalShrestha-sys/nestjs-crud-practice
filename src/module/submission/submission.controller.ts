@@ -35,7 +35,9 @@ export class SubmissionController {
   @Post('hackathon/:hackathonId/submission')
   @Roles(['PARTICIPANT'])
   @ApiCookieAuth()
-  @ApiOperation({ summary: 'Submit a project for a hackathon (Participant only)' })
+  @ApiOperation({
+    summary: 'Submit a project for a hackathon (Participant only)',
+  })
   @ApiParam({ name: 'hackathonId', description: 'Hackathon CUID' })
   @ApiResponse({ status: 201, description: 'Project submitted successfully' })
   @ResponseMessage('Project submitted successfully')
@@ -51,7 +53,10 @@ export class SubmissionController {
   @AllowAnonymous()
   @ApiOperation({ summary: 'List all project submissions for a hackathon' })
   @ApiParam({ name: 'hackathonId', description: 'Hackathon CUID' })
-  @ApiResponse({ status: 200, description: 'Submissions retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Submissions retrieved successfully',
+  })
   @ResponseMessage('Submissions retrieved successfully')
   findByHackathon(@Param('hackathonId') hackathonId: string) {
     return this.submissionService.findByHackathon(hackathonId);
@@ -61,7 +66,10 @@ export class SubmissionController {
   @AllowAnonymous()
   @ApiOperation({ summary: 'Get submission details by ID' })
   @ApiParam({ name: 'id', description: 'Submission CUID' })
-  @ApiResponse({ status: 200, description: 'Submission retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Submission retrieved successfully',
+  })
   @ResponseMessage('Submission retrieved successfully')
   findOne(@Param('id') id: string) {
     return this.submissionService.findOne(id);

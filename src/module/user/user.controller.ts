@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import {
   ApiCookieAuth,
   ApiOperation,
@@ -54,7 +47,10 @@ export class UserController {
   @Get('me/hackathons')
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Get list of hackathons joined by signed-in user' })
-  @ApiResponse({ status: 200, description: 'User hackathons retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'User hackathons retrieved successfully',
+  })
   @ResponseMessage('User hackathons retrieved successfully')
   getUserHackathons(@Session() session: UserSession<Auth>) {
     return this.userService.getUserHackathons(session.user.id);

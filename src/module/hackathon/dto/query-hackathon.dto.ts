@@ -10,7 +10,10 @@ export enum HackathonStatusFilter {
 }
 
 export class QueryHackathonDto {
-  @ApiPropertyOptional({ description: 'Page number for pagination', default: 1 })
+  @ApiPropertyOptional({
+    description: 'Page number for pagination',
+    default: 1,
+  })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -34,7 +37,9 @@ export class QueryHackathonDto {
   @IsEnum(HackathonStatusFilter)
   status?: HackathonStatusFilter = HackathonStatusFilter.ALL;
 
-  @ApiPropertyOptional({ description: 'Search term for hackathon name or description' })
+  @ApiPropertyOptional({
+    description: 'Search term for hackathon name or description',
+  })
   @IsOptional()
   @IsString()
   q?: string;

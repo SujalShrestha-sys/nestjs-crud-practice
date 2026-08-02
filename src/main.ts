@@ -42,7 +42,10 @@ async function bootstrap() {
           })),
         );
 
-        return new BadRequestException({ message: 'Validation failed', errors });
+        return new BadRequestException({
+          message: 'Validation failed',
+          errors,
+        });
       },
     }),
   );

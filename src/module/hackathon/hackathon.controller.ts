@@ -74,7 +74,10 @@ export class HackathonController {
   @Get()
   @AllowAnonymous()
   @ApiOperation({ summary: 'List all hackathons with pagination and filters' })
-  @ApiResponse({ status: 200, description: 'Hackathons retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Hackathons retrieved successfully',
+  })
   @ResponseMessage('Hackathons retrieved successfully')
   findAll(@Query() queryDto: QueryHackathonDto) {
     return this.hackathonService.findAll(queryDto);
@@ -84,7 +87,10 @@ export class HackathonController {
   @AllowAnonymous()
   @ApiOperation({ summary: 'List all participants registered for a hackathon' })
   @ApiParam({ name: 'id', description: 'Hackathon CUID' })
-  @ApiResponse({ status: 200, description: 'Participants retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Participants retrieved successfully',
+  })
   @ResponseMessage('Participants retrieved successfully')
   getParticipants(@Param('id') id: string) {
     return this.hackathonService.getParticipants(id);

@@ -11,17 +11,15 @@ import { CreateSubmissionDto } from './dto/create-submission.dto';
 export class SubmissionService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(
-    hackathonId: string,
-    userId: string,
-    dto: CreateSubmissionDto,
-  ) {
+  async create(hackathonId: string, userId: string, dto: CreateSubmissionDto) {
     const hackathon = await this.prisma.hackathon.findUnique({
       where: { id: hackathonId },
     });
 
     if (!hackathon) {
-      throw new NotFoundException(`Hackathon with ID ${hackathonId} was not found`);
+      throw new NotFoundException(
+        `Hackathon with ID ${hackathonId} was not found`,
+      );
     }
 
     if (!hackathon.isActive) {
@@ -76,7 +74,9 @@ export class SubmissionService {
     });
 
     if (!hackathon) {
-      throw new NotFoundException(`Hackathon with ID ${hackathonId} was not found`);
+      throw new NotFoundException(
+        `Hackathon with ID ${hackathonId} was not found`,
+      );
     }
 
     return await this.prisma.submission.findMany({

@@ -5,7 +5,6 @@ import { HackathonService } from './hackathon.service';
 
 describe('HackathonService', () => {
   let service: HackathonService;
-  let prisma: PrismaService;
 
   const mockPrismaService = {
     hackathon: {
@@ -37,7 +36,6 @@ describe('HackathonService', () => {
     }).compile();
 
     service = module.get<HackathonService>(HackathonService);
-    prisma = module.get<PrismaService>(PrismaService);
     jest.clearAllMocks();
   });
 
@@ -47,7 +45,10 @@ describe('HackathonService', () => {
 
   describe('create', () => {
     it('should throw BadRequestException if hackathon name exists', async () => {
-      mockPrismaService.hackathon.findFirst.mockResolvedValue({ id: '1', name: 'Hackathon 1' });
+      mockPrismaService.hackathon.findFirst.mockResolvedValue({
+        id: '1',
+        name: 'Hackathon 1',
+      });
 
       await expect(
         service.create(

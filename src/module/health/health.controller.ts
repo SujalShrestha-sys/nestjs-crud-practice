@@ -12,7 +12,10 @@ export class HealthController {
   @Get()
   @AllowAnonymous()
   @ApiOperation({ summary: 'Check health and database connectivity status' })
-  @ApiResponse({ status: 200, description: 'Health status retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Health status retrieved successfully',
+  })
   @ResponseMessage('Health status retrieved successfully')
   async check() {
     let dbStatus = 'down';
