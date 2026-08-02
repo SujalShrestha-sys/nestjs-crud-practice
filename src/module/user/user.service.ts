@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { User } from '../../generated/prisma/client';
 import { PrismaService } from '../../lib/database/prisma.service';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 const userSelect = {
   id: true,
@@ -37,5 +38,44 @@ export class UserService {
     }
 
     return user;
+  }
+
+  async updateProfile(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+    await this.findOne(id);
+
+    return await this.prisma.user.update({
+      where: { id },
+      data: updateUserDto,
+      select: userSelect,
+    });
+  }
+
+  async getUserHackathons(id: string) {
+    await this.findOne(id);
+
+    const participations = await this.prisma.hackathonParticipant.findMany({
+      where: { userId: id },
+      include: {
+        hackathon: {
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        joinedAt: 'desc',
+      },
+    });
+
+    return participations.map((p) => ({
+      joinedAt: p.joinedAt,
+      hackathon: p.hackathon,
+    }));
   }
 }
