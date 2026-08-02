@@ -23,11 +23,6 @@ export * from './enums.js';
  */
 export type User = Prisma.UserModel
 /**
- * Model Post
- * 
- */
-export type Post = Prisma.PostModel
-/**
  * Model Hackathon
  * 
  */
@@ -37,6 +32,11 @@ export type Hackathon = Prisma.HackathonModel
  * 
  */
 export type HackathonParticipant = Prisma.HackathonParticipantModel
+/**
+ * Model Submission
+ * 
+ */
+export type Submission = Prisma.SubmissionModel
 /**
  * Model Session
  * 

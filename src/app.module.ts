@@ -11,6 +11,8 @@ import { PrismaModule } from './lib/database/prisma.module';
 import { PrismaService } from './lib/database/prisma.service';
 import { UserModule } from './module/user/user.module';
 import { HackathonModule } from './module/hackathon/hackathon.module';
+import { HealthModule } from './module/health/health.module';
+import { SubmissionModule } from './module/submission/submission.module';
 
 if (existsSync('.env')) {
   process.loadEnvFile();
@@ -28,6 +30,8 @@ const arcjetMode = process.env.ARCJET_MODE === 'LIVE' ? 'LIVE' : 'DRY_RUN';
   imports: [
     PrismaModule,
     UserModule,
+    HealthModule,
+    SubmissionModule,
     AuthModule.forRootAsync({
       imports: [PrismaModule],
       inject: [PrismaService],

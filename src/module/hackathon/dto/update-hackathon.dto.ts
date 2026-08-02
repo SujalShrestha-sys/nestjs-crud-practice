@@ -1,39 +1,4 @@
-import { Type } from 'class-transformer';
-import {
-  IsBoolean,
-  IsDate,
-  IsOptional,
-  IsString,
-  MaxLength,
-  MinDate,
-  MinLength,
-} from 'class-validator';
+import { PartialType } from '@nestjs/swagger';
+import { CreateHackathonDto } from './create-hackathon.dto';
 
-export class UpdateHackathonDto {
-  @IsOptional()
-  @IsString()
-  @MinLength(3)
-  name?: string;
-
-  @IsOptional()
-  @IsString()
-  @MinLength(10)
-  @MaxLength(1000)
-  description?: string;
-
-  @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  @MinDate(() => new Date(), { message: 'startsAt must be a future date' })
-  startsAt?: Date;
-
-  @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  @MinDate(() => new Date(), { message: 'endsAt must be a future date' })
-  endsAt?: Date;
-
-  @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
-}
+export class UpdateHackathonDto extends PartialType(CreateHackathonDto) {}

@@ -52,9 +52,9 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
-  Post: 'Post',
   Hackathon: 'Hackathon',
   HackathonParticipant: 'HackathonParticipant',
+  Submission: 'Submission',
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification'
@@ -90,17 +90,6 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
-export const PostScalarFieldEnum = {
-  id: 'id',
-  title: 'title',
-  content: 'content',
-  published: 'published',
-  authorId: 'authorId'
-} as const
-
-export type PostScalarFieldEnum = (typeof PostScalarFieldEnum)[keyof typeof PostScalarFieldEnum]
-
-
 export const HackathonScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -124,6 +113,21 @@ export const HackathonParticipantScalarFieldEnum = {
 } as const
 
 export type HackathonParticipantScalarFieldEnum = (typeof HackathonParticipantScalarFieldEnum)[keyof typeof HackathonParticipantScalarFieldEnum]
+
+
+export const SubmissionScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  repoUrl: 'repoUrl',
+  demoUrl: 'demoUrl',
+  hackathonId: 'hackathonId',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SubmissionScalarFieldEnum = (typeof SubmissionScalarFieldEnum)[keyof typeof SubmissionScalarFieldEnum]
 
 
 export const SessionScalarFieldEnum = {
